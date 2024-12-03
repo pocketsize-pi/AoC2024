@@ -24,5 +24,15 @@ pub fn day01(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
     println!("The total distance is {}", total_distance);
     // 3714264
 
+    // Part 2
+    // The fact that we sorted them earlier doesn't matter
+    // I feel there is a clever way to do this with filters and what not, but I don't know it
+    let mut similarity_score = 0;
+    for entry in data0 {
+        similarity_score += entry * data1.iter().filter(|d| **d==entry).count() as i32;
+    }
+    println!("The similarity score is {}", similarity_score);
+    // 18805872
+
     Ok(())
 }
