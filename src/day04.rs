@@ -67,5 +67,28 @@ pub fn day04(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
     println!("There are {} xmas", total_xmas);
     // 2642 yay!
 
+    // part 2
+    let mas = "MAS";
+    let sam = "SAM";
+    total_xmas = 0;
+    for r_y in 1..char_data.len()-1 {
+        for c_x in 1..char_data[0].len()-1 {
+            // check X as the centre spot
+            // limits are ok for that
+            if char_data[r_y][c_x] == 'A' {
+                // build diagonals (it doesn't matter pos/neg, they are just names)
+                let pos_diag = Vec::from([char_data[r_y-1][c_x-1], char_data[r_y][c_x], char_data[r_y+1][c_x+1]]);
+                let neg_diag = Vec::from([char_data[r_y+1][c_x-1], char_data[r_y][c_x], char_data[r_y-1][c_x+1]]);
+                let pos_diag_str : String = pos_diag.iter().collect::<String>();
+                let neg_diag_str : String = neg_diag.iter().collect::<String>();
+                if (pos_diag_str.contains(mas) | pos_diag_str.contains(sam)) &
+                    (neg_diag_str.contains(mas) | neg_diag_str.contains(sam)) {
+                    total_xmas += 1;
+                }
+            }
+        }
+    }
+    println!("There are now {} X-MAS", total_xmas);
+
     Ok(())
 }
