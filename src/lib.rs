@@ -61,3 +61,131 @@ pub fn str_to_usize (input: &str) -> usize {
     input.parse::<usize>().unwrap()
 }
 
+// COORDINATES
+// column is x, row is y
+#[derive(Debug, Eq, PartialEq, Hash, Clone, Copy, Default)]
+pub struct Point {
+    pub c_x: i32,
+    pub r_y: i32,
+}
+
+impl Point {
+    pub fn move_one(&mut self, direction: &Direction)
+    {
+        self.move_along(direction, &1);
+    }
+    pub fn move_along(&mut self, direction: &Direction, length: &i32)
+    {
+        match direction {
+            Direction::North => self.r_y -= length,
+            Direction::South => self.r_y += length,
+            Direction::East => self.c_x += length,
+            Direction::West => self.c_x -= length,
+            Direction::NorthEast => {
+                self.r_y -= 1;
+                self.c_x += 1;
+            }
+            Direction::NorthWest => {
+                self.r_y -= 1;
+                self.c_x -= 1;
+            }
+            Direction::SouthEast => {
+                self.r_y += 1;
+                self.c_x += 1;
+            }
+            Direction::SouthWest => {
+                self.r_y += 1;
+                self.c_x -= 1;
+            }
+        }
+    }
+
+    // pub fn move_udlr(&mut self, direction: &UdlrDirection, length: &i32)
+    // {
+    //     self.move_along(&get_direction(direction), length);
+    // }
+
+    pub fn within_dimensions(self, max_x: i32, max_y: i32) -> bool{
+        (self.r_y >= 0) & (self.r_y < max_y) & (self.c_x >= 0) & (self.c_x < max_x)
+    }
+}
+
+
+#[derive(Debug, Clone, Copy)]
+pub struct OrientedPoint {
+    pub point: Point,
+    pub orientation: Direction,
+}
+
+impl Default for OrientedPoint {
+    fn default() -> Self {
+        OrientedPoint {point: Point::default(), orientation: Direction::North}
+    }
+}
+
+impl OrientedPoint {
+
+    pub fn move_one(&mut self)
+    {
+        self.move_along(&1);
+    }
+    pub fn move_along(&mut self, length: &i32)
+    {
+        self.point.move_along(&self.orientation, length);
+    }
+
+    pub fn rotate(&mut self, rotation: &Turning) {
+        match rotation {
+            Turning::Left => {
+                match self.orientation {
+                    Direction::North => {self.orientation = Direction::West;}
+                    Direction::South => {self.orientation = Direction::East;}
+                    Direction::East =>  {self.orientation = Direction::North;}
+                    Direction::West =>  {self.orientation = Direction::South;}
+                    Direction::NorthEast => {self.orientation = Direction::NorthWest;}
+                    Direction::NorthWest => {self.orientation = Direction::SouthWest;}
+                    Direction::SouthEast => {self.orientation = Direction::NorthEast;}
+                    Direction::SouthWest => {self.orientation = Direction::SouthEast;}
+                }
+            }
+            Turning::Right => {
+                match self.orientation {
+                    Direction::North => {self.orientation = Direction::East;}
+                    Direction::South => {self.orientation = Direction::West;}
+                    Direction::East =>  {self.orientation = Direction::South;}
+                    Direction::West =>  {self.orientation = Direction::North;}
+                    Direction::NorthEast => {self.orientation = Direction::SouthEast;}
+                    Direction::NorthWest => {self.orientation = Direction::NorthEast;}
+                    Direction::SouthEast => {self.orientation = Direction::SouthWest;}
+                    Direction::SouthWest => {self.orientation = Direction::NorthWest;}
+                }
+            }
+        }
+    }
+}
+
+
+
+#[derive(Debug)]
+pub enum Turning {
+    Left,
+    Right,
+}
+
+pub const NORTH: Point = Point { r_y:-1, c_x:0};
+pub const SOUTH: Point = Point { r_y:1, c_x:0};
+pub const EAST: Point = Point { c_x:1, r_y:0};
+pub const WEST: Point = Point { c_x:-1, r_y:0};
+pub const STAY: Point = Point { c_x:0, r_y:0};
+
+#[derive(Debug, Eq, PartialEq, Hash, Clone, Copy)]
+pub enum Direction {
+    North,
+    South,
+    East,
+    West,
+    NorthEast,
+    NorthWest,
+    SouthEast,
+    SouthWest,
+}
