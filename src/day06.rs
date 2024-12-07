@@ -44,6 +44,8 @@ pub fn day06(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
     let mut visited_points = 1;
     let mut visited_history = vec!(guard.point);
 
+    let original_guard = guard;
+
     loop {
         let mut target_guard = guard;
         // println!("{:?}", target_guard);
@@ -67,23 +69,70 @@ pub fn day06(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
     }
 
     println!("The guard patrols {} points", visited_points);
+    // let debug_point = Point{c_x: 3, r_y: 6};
 
+    let mut loops_found = 0;
+    // visited_history = Vec::new();
+    for r in 0..max_height {
+        for c in 0..max_width {
 
-    // for r_i in 0..max_height {
-    //     for c_i in 0..max_width {
-    //
-    //         let here = Point{r_y: r_i, c_x: c_i};
-    //         if visited_history.contains(&here) {
-    //             print!("X");
-    //         }
-    //         else {
-    //             print!("{}", grid[r_i as usize][c_i as usize]);
-    //         }
-    //     }
-    //     println!();
-    // }
-    // println!();
+            let obstacle = Point {c_x: c, r_y: r};
+            if !walls.contains(&obstacle) & (obstacle != original_guard.point) {
+                let mut new_walls = walls.clone();
+                new_walls.push(obstacle);
+                // println!("\n{:?}", obstacle);
 
+                // now we go again over, but with some modifications
+
+                // let mut loop_found = false;
+                // the key to a loop is the guard on an identical position, including orientation
+                let mut oriented_history = Vec::new();
+
+                // initialise history
+                oriented_history.push(original_guard);
+
+                visited_history = Vec::new();
+                visited_history.push(original_guard.point);
+                // visited_points = 1;
+
+                guard = original_guard;
+
+                loop {
+                    let mut target_guard = guard;
+                    // println!("{:?}", target_guard);
+                    target_guard.move_one();
+                    if (target_guard.point.c_x == max_width) | (target_guard.point.r_y == max_height) |
+                        (target_guard.point.c_x == -1) | (target_guard.point.r_y == -1) {
+                        // println!("exit");
+                        break;
+                        // not sure why the while wasn't working!
+                    }
+                    if new_walls.contains(&target_guard.point) {
+                        // rotate right
+                        guard.rotate(&Turning::Right);
+                    } else {
+                        // we can go to target pos!
+                        guard = target_guard;
+
+                        if !oriented_history.contains(&guard) {
+                            // visited_points += 1;
+                            oriented_history.push(guard);
+                            visited_history.push(guard.point);
+                        }
+                        else {
+                            // println!("found a loop");
+                            // oriented guard means a loop!
+                            loops_found += 1;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    println!("There are {} positions for the obstacle", loops_found);
+    // 1686, first time running too!
 
     Ok(())
 }
