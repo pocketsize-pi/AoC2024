@@ -1,5 +1,6 @@
 use std::collections::{HashMap, VecDeque};
 use aoc_2024::*;
+use num_integer::gcd;
 
 pub fn day08(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std::error::Error>> {
     println!("Day 08");
@@ -74,6 +75,62 @@ pub fn day08(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
     println!("There are {} antinodes", antinodes_list.len());
     // 249 antinodes
 
+    fn find_all_antinodes (pt1: Point, pt2: Point, max_height: i32, max_width: i32) -> Vec<Point> {
+        let mut dy = pt2.r_y - pt1.r_y;
+        let mut dx = pt2.c_x - pt1.c_x;
+        let factor = gcd(dy, dx);
+        dy = dy/factor;
+        dx = dx/factor;
+
+        let mut antinodes = Vec::new();
+
+        let mut candidate = pt1;
+        while candidate.within_dimensions(max_width, max_height) {
+            antinodes.push(candidate);
+            candidate.c_x -= dx;
+            candidate.r_y -= dy;
+        }
+        candidate = pt2;
+        while candidate.within_dimensions(max_width, max_height) {
+            antinodes.push(candidate);
+            candidate.c_x += dx;
+            candidate.r_y += dy;
+        }
+        antinodes
+
+    }
+
+    antinodes_list = Vec::new();
+    for antenna_values in antennas.values(){
+        if antenna_values.len() == 1 {
+            // a single antenna cannot create an antinode
+            break;
+        }
+        else {
+            let mut working_values = antenna_values.clone();
+
+            while working_values.len() > 0 {
+                let antenna1 = working_values.pop_front().unwrap();
+                for id2 in 0..working_values.len() {
+                    let antenna2 = working_values[id2];
+                    // println!("a1: {:?}, a2: {:?}", antenna1, antenna2);
+                    let antinodes = find_all_antinodes(antenna1, antenna2, max_height as i32, max_width as i32);
+                    // println!("Antinodes: {:?}", antinodes);
+
+                    for antinode in antinodes {
+                        if !antinodes_list.contains(&antinode) {
+                            antinodes_list.push(antinode);
+                        }
+                    }
+
+                }
+            }
+
+        }
+    }
+
+    println!("There are {} antinodes", antinodes_list.len());
+    // 905
 
     Ok(())
 }

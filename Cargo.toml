@@ -7,5 +7,6 @@ edition = "2021"
 
 [dependencies]
 diagonal = "0.1.0"
+num-integer = "0.1.46"
 regex = "1.11.1"
 transpose = "0.2.3"
