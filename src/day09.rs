@@ -14,12 +14,23 @@ pub fn day09(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
 
     // is this too much brute force?
     let mut file_number: usize = 0;
+    // let's store the size for part 2 so that we don't have to do too much searching
+    #[derive(Debug)]
+    struct FileProperties {
+        file_id: usize,
+        length: usize,
+        location: usize,
+    }
+    let mut file_lengths: Vec<FileProperties> = Vec::new();
+
     for (is_file, entry) in raw_files.iter().enumerate() {
         if is_file % 2 == 0 {
             // file
+            file_lengths.push(FileProperties{file_id: file_number, length: *entry as usize, location: expanded_files.len()});
             for _i in 0..*entry {
                 expanded_files.push(file_number);
             }
+
             file_number += 1;
         }
         else {
@@ -32,10 +43,11 @@ pub fn day09(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
 
     let mut number_of_moves = 0;
     //assert_eq!(a.iter().position(|&x| x == 5), None);
-    while expanded_files.iter().position(|&x| x == usize::MAX) != None {
-        let first_empty = expanded_files.iter().position(|&x| x == usize::MAX).unwrap();
-        let move_char = expanded_files.pop().unwrap();
-        expanded_files[first_empty] = move_char;
+    let mut basic_expanded_files = expanded_files.clone();
+    while basic_expanded_files.iter().position(|&x| x == usize::MAX) != None {
+        let first_empty = basic_expanded_files.iter().position(|&x| x == usize::MAX).unwrap();
+        let move_char = basic_expanded_files.pop().unwrap();
+        basic_expanded_files[first_empty] = move_char;
         number_of_moves += 1;
     }
 
@@ -43,7 +55,7 @@ pub fn day09(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
     // println!("{:?}", expanded_files);
 
     let mut checksum = 0;
-    for (i, entry) in expanded_files.iter().enumerate() {
+    for (i, entry) in basic_expanded_files.iter().enumerate() {
         if *entry == usize::MAX {
             break
         }
@@ -54,6 +66,52 @@ pub fn day09(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
 
     println!("The checksum is {}", checksum);
     // 6301895872542
+
+    // fn contains_subslice<T: PartialEq>(data: &[T], needle: &[T]) -> bool {
+    //     data
+    //         .windows(needle.len())
+    //         .any(|w| w == needle)
+    // }
+
+    fn position_subslice<T: PartialEq>(data: &[T], needle: &[T]) -> Option<usize> {
+        data
+            .windows(needle.len())
+            .enumerate()
+            .find(|&(_, w)| w == needle)
+            .map(|(i, _)| i)
+    }
+
+    let mut complex_expanded_files = expanded_files.clone();
+
+
+    while !file_lengths.is_empty() {
+        let moving_block = file_lengths.pop().unwrap();
+        // println!("\nmoving block: {:?}", moving_block);
+        let brute_force_gap: Vec<usize> = (0..moving_block.length).map(|_x| usize::MAX).collect::<Vec<usize>>();
+        let check_gap = position_subslice(&complex_expanded_files, &brute_force_gap);
+        if check_gap != None {
+            // we now swap our brute force file/gap
+            let gap_pos = check_gap.unwrap();
+            if gap_pos < moving_block.location {
+                // more to the left, let's move it!
+                for i in 0..moving_block.length {
+                    complex_expanded_files[gap_pos+i]  = moving_block.file_id;
+                    complex_expanded_files[ moving_block.location+i] = usize::MAX;
+                }
+            }
+
+        }
+    }
+
+    let mut checksum = 0;
+    for (i, entry) in complex_expanded_files.iter().enumerate() {
+        if *entry != usize::MAX {
+            checksum += i * entry;
+        }
+    }
+
+    println!("The checksum is {}", checksum);
+    // 6323761685944
 
 
     Ok(())
