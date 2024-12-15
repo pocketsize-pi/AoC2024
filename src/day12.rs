@@ -77,5 +77,7 @@ pub fn day12(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
     println!("Final cost is: {}", total_cost);
     // 1450816 is the right answer
 
+    // we had something similar last year, I had to copy someone else's maths, I'm going to try later
+
     Ok(())
 }
