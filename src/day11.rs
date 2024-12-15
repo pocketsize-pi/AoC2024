@@ -53,5 +53,56 @@ pub fn day11(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
     // 231278 yay!
 
 
+    // Part 2 doesn't work brute force
+    // can we go recursive?
+
+    fn count_stone_evolutions(current_reverse_cycle: usize, current_stone: u64) -> u64 {
+
+        let mut return_value = 0;
+        if current_reverse_cycle == 0 {
+            // print!("{} ", current_stone);
+            // last cycle, we return the number of the stone evolutions, not the number itself!
+            if current_stone.to_string().len() % 2 == 0{
+                return_value = 2;
+            }
+            else {
+                return_value = 1;
+            }
+        }
+        else {
+            // process the stone, and return a sum?
+            if current_stone == 0 {
+                return_value = count_stone_evolutions(current_reverse_cycle-1, 1);
+            }
+            else if current_stone.to_string().len() % 2 == 0 {
+                let old_numer_str = current_stone.to_string();
+                let old_length = old_numer_str.len();
+                let part1 = str_to_u64(&old_numer_str[0..old_length/2]);
+                let part2 = str_to_u64(&old_numer_str[old_length/2..old_length]);
+                return_value = count_stone_evolutions(current_reverse_cycle-1, part1) +
+                    count_stone_evolutions(current_reverse_cycle-1, part2);
+            }
+            else {
+                return_value = count_stone_evolutions(current_reverse_cycle-1, current_stone * 2024);
+            }
+
+        }
+
+        return_value
+    }
+
+    let mut recursive_count = 0;
+    // for blink in 0..6 {
+        recursive_count = 0;
+        // println!("-------");
+        for stone in &initial_stones {
+            recursive_count += count_stone_evolutions(74, *stone);
+        }
+        // println!();
+        println!("Recursive count for {} is {}", 75, recursive_count);
+    // }
+
+
+
     Ok(())
 }
