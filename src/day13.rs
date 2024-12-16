@@ -48,7 +48,7 @@ pub fn day13(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
     // println!("{:?}", arcade);
 
 
-    let mut total_tokens = 0;
+    let mut total_tokens: i32 = 0;
 
     enum Buttons {
         A, B,
@@ -57,22 +57,22 @@ pub fn day13(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
 
     let starting_point = Point::default();
 
-    let cost_a = 3;
-    let cost_b = 1;
+    let cost_a: i32 = 3;
+    let cost_b: i32 = 1;
 
     #[derive(Clone, Copy, PartialEq)]
     struct MachineStatus {
         claw: Point,
-        cost: u32,
-        num_a: u32,
-        num_b: u32,
+        cost: i32,
+        num_a: i32,
+        num_b: i32,
     }
 
 
 
-    for machine in arcade {
+    for machine in &arcade {
 
-        println!("Machine: {:?}", machine);
+        // println!("Machine: {:?}", machine);
 
         let mut button_queue = VecDeque::new();
 
@@ -99,7 +99,7 @@ pub fn day13(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
                 }
 
                 if move_claw.claw == machine.prize {
-                    println!("Found at cost {}", move_claw.cost);
+                    // println!("Found at cost {}", move_claw.cost);
                     total_tokens += move_claw.cost;
                     found = true;
                     break;
@@ -122,14 +122,61 @@ pub fn day13(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
 
             if found {break}
         }
-        if !found {
-            println!("This machine can't be won");
-        }
+        // if !found {
+        //     println!("This machine can't be won");
+        // }
 
     }
 
     println!("Final cost is: {}", total_tokens);
     // 35729
+
+    // let's solve the equations
+    // [ a_x b_x ] [ A ] = [ p_x ]
+    // [ a_y b_y ] [ B ] = [ p_y ]
+
+    let mut big_tokens = 0;
+    let crazy = 10000000000000.0;
+    for machine in &arcade {
+
+        // println!("Machine: {:?}", machine);
+        let determinant = ((machine.button_a.c_x * machine.button_b.r_y) - (machine.button_b.c_x * machine.button_a.r_y)) as f64;
+
+        // inverse
+        // 1 /det [  b_y -b_x ]
+        //        [ -a_y  a_x ]
+
+        // sol = inv * p
+        // a = 1/det * ( (by * px) + (-bx * py)
+        // println!("determinant: {}", determinant);
+        if determinant != 0.0 {
+            let a_y = machine.button_a.r_y as f64;
+            let b_y = machine.button_b.r_y as f64;
+            let a_x = machine.button_a.c_x as f64;
+            let b_x = machine.button_b.c_x as f64;
+            let p_y = machine.prize.r_y as f64 + crazy;
+            let p_x = machine.prize.c_x as f64 + crazy;
+
+            let num_a = ((b_y * p_x) - (b_x * p_y)) / determinant;
+            let num_b = ((-a_y * p_x) + (a_x * p_y)) / determinant;
+
+            if (num_a % 1.0 == 0.0) & (num_b % 1.0 == 0.0) {
+                let current_cost = (num_a as i64 * cost_a as i64) + (num_b as i64 * cost_b as i64);
+                // println!("Current cost: {}", current_cost);
+                big_tokens += current_cost;
+            }
+
+            // println!("num {} {}", num_a, ((machine.button_b.r_y * machine.prize.c_x) - (machine.button_b.c_x * machine.prize.r_y)));
+            // println!("num {} {}", num_b, ((-machine.button_a.r_y * machine.prize.c_x) + (machine.button_a.c_x * machine.prize.r_y)));
+
+
+        }
+
+
+    }
+    println!("Final cost is: {}", big_tokens);
+    //158299988799973 too high
+    // 88584689879723 is right!
 
     Ok(())
 }
