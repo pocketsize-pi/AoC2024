@@ -112,6 +112,15 @@ impl Point {
     pub fn within_dimensions(self, max_x: i32, max_y: i32) -> bool{
         (self.r_y >= 0) & (self.r_y < max_y) & (self.c_x >= 0) & (self.c_x < max_x)
     }
+
+    pub fn add(&mut self, offset_point: Point) {
+        self.c_x += offset_point.c_x;
+        self.r_y += offset_point.r_y;
+    }
+
+    pub fn add_to_new(self, offset_point: Point) -> Point {
+        Point{c_x: self.c_x + offset_point.c_x, r_y: self.r_y + offset_point.r_y}
+    }
 }
 
 
