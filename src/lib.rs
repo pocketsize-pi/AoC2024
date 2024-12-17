@@ -207,7 +207,7 @@ pub enum Direction {
     SouthWest,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum UdlrDirection {
     Up,
     Down,
