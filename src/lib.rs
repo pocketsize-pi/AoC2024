@@ -104,10 +104,14 @@ impl Point {
         }
     }
 
-    // pub fn move_udlr(&mut self, direction: &UdlrDirection, length: &i32)
-    // {
-    //     self.move_along(&get_direction(direction), length);
-    // }
+    pub fn move_one_udlr(&mut self, direction: &UdlrDirection) {
+        self.move_along(&get_direction(direction), &1);
+    }
+
+    pub fn move_along_udlr(&mut self, direction: &UdlrDirection, length: &i32)
+    {
+        self.move_along(&get_direction(direction), length);
+    }
 
     pub fn within_dimensions(self, max_x: i32, max_y: i32) -> bool{
         (self.r_y >= 0) & (self.r_y < max_y) & (self.c_x >= 0) & (self.c_x < max_x)
@@ -202,3 +206,21 @@ pub enum Direction {
     SouthEast,
     SouthWest,
 }
+
+#[derive(Clone, Copy)]
+pub enum UdlrDirection {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+pub fn get_direction (udlr_dir: &UdlrDirection) -> Direction {
+    match udlr_dir {
+        UdlrDirection::Up => {Direction::North}
+        UdlrDirection::Down => {Direction::South}
+        UdlrDirection::Left => {Direction::West}
+        UdlrDirection::Right => {Direction::East}
+    }
+}
+
