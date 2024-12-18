@@ -74,6 +74,10 @@ pub struct Point {
 }
 
 impl Point {
+
+    pub fn new(c_x: usize, r_y: usize) -> Self {
+        Point{c_x: c_x as i32, r_y: r_y as i32}
+    }
     pub fn move_one(&mut self, direction: &Direction)
     {
         self.move_along(direction, &1);
@@ -224,3 +228,5 @@ pub fn get_direction (udlr_dir: &UdlrDirection) -> Direction {
     }
 }
 
+// Common symbols
+pub const WALL : char = '#';
