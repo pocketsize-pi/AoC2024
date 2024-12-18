@@ -30,7 +30,7 @@ pub fn day16(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
         }
     }
 
-    // println!("Reindeer starts at {:?}, end is {:?}", reindeer_start, end_location);
+    println!("Reindeer starts at {:?}, end is {:?}", reindeer_start, end_location);
 
     let move_score = 1;
     let turn_score = 1000;
@@ -46,20 +46,30 @@ pub fn day16(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
     // two synced queues
     let mut steps_queue = VecDeque::new();
     let mut score_queue = VecDeque::new();
-    // let mut joint_queue = VecDeque::new();
+    let mut joint_queue : VecDeque<(OrientedPoint, i32)> = VecDeque::new();
     let mut steps_history = Vec::new();
     let mut score_history = Vec::new();
 
     steps_queue.push_back(reindeer_start);
     score_queue.push_back(0);
 
+    joint_queue.push_back((reindeer_start, 0));
+
 
     let mut end_reached = false;
 
-    while !steps_queue.is_empty() {
+    // while !steps_queue.is_empty() {
+    while !joint_queue.is_empty() {
 
-        let current_reindeer = steps_queue.pop_front().unwrap();
-        let current_score = score_queue.pop_front().unwrap();
+        // if joint_queue.len() % 100 == 0 {
+        //     println!("queue length {}", joint_queue.len());
+        //     println!("current loc: {:?}, score: {}", joint_queue[0].0, joint_queue[0].1);
+        // }
+
+
+        // let current_reindeer = steps_queue.pop_front().unwrap();
+        // let current_score = score_queue.pop_front().unwrap();
+        let (current_reindeer, current_score ) = joint_queue.pop_front().unwrap();
         steps_history.push(current_reindeer);
         score_history.push(current_score);
         // println!("current loc: {:?}, score: {}", current_reindeer, current_score);
@@ -93,26 +103,31 @@ pub fn day16(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
             }
             else if !maze.contains(&new_reindeer.point) {
                 // this is a new legal location
-                if !steps_history.contains(&new_reindeer) & !steps_queue.contains(&new_reindeer){
+                if !steps_history.contains(&new_reindeer) & !joint_queue.contains(&(new_reindeer, new_score)){
                     // they really should be sorted by score
                     // this finds the value of the first entry that is bigger than ours, so we want to go before
-                    let find_index = score_queue.iter().position(|x| *x > new_score);
+
+
+                    let find_index = joint_queue.iter().position(|(d, s)| *s > new_score);
                     match find_index {
                         None => {
                             // none bigger, goes at the end
-                            score_queue.push_back(new_score);
-                            steps_queue.push_back(new_reindeer);
+                            joint_queue.push_back((new_reindeer, new_score));
+                            // score_queue.push_back(new_score);
+                            // steps_queue.push_back(new_reindeer);
                         }
                         Some(id) => {
                             if id == 0 {
                                 // the first one is bigger, so we insert at the front directly
-                                score_queue.push_front(new_score);
-                                steps_queue.push_front(new_reindeer);
+                                joint_queue.push_front((new_reindeer, new_score));
+                                // score_queue.push_front(new_score);
+                                // steps_queue.push_front(new_reindeer);
                             }
                             else {
                                 // we stick it in id-1
-                                score_queue.insert(id-1, new_score);
-                                steps_queue.insert(id-1, new_reindeer);
+                                joint_queue.insert(id-1, (new_reindeer, new_score));
+                                // score_queue.insert(id-1, new_score);
+                                // steps_queue.insert(id-1, new_reindeer);
                             }
                         }
                     }
@@ -129,6 +144,7 @@ pub fn day16(input_type: InputType, manual_name: &str) -> Result<(), Box<dyn std
     }
 
     // oh dear, my answer 79412 is too high!
+    // 79404 is right!
 
     Ok(())
 }
